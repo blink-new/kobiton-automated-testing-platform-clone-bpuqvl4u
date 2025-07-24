@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';
-import { Play, Square, Download, Smartphone, Users, MessageCircle, Phone, Video } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { DeviceConnection } from './DeviceConnection';
+import { Play, Square, Download, Smartphone, Users, MessageCircle, Phone, Video, Monitor, Wifi } from 'lucide-react';
 
 interface FlutterElement {
   id: string;
@@ -33,10 +35,23 @@ interface TestFlow {
   confidence: number;
 }
 
+interface DeviceInfo {
+  id: string;
+  name: string;
+  platform: 'iOS' | 'Android';
+  version: string;
+  status: 'connected' | 'disconnected' | 'connecting';
+  connectionType: 'USB' | 'WiFi' | 'Cloud';
+  resolution: string;
+  battery?: number;
+}
+
 export const FlutterAppRecorder: React.FC = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [currentFlow, setCurrentFlow] = useState<string>('');
+  const [connectedDevice, setConnectedDevice] = useState<DeviceInfo | null>(null);
+  const [isScreenMirroring, setIsScreenMirroring] = useState(false);
   const [testFlows, setTestFlows] = useState<TestFlow[]>([
     {
       id: 'registration',
@@ -439,7 +454,20 @@ export const FlutterAppRecorder: React.FC = () => {
     return () => clearInterval(interval);
   }, [isRecording]);
 
+  const handleDeviceConnected = (device: DeviceInfo) => {
+    setConnectedDevice(device);
+  };
+
+  const handleScreenMirror = (enabled: boolean) => {
+    setIsScreenMirroring(enabled);
+  };
+
   const startRecording = (flowId: string) => {
+    if (!connectedDevice) {
+      alert('Please connect a device first to start recording');
+      return;
+    }
+
     setCurrentFlow(flowId);
     setIsRecording(true);
     setRecordingTime(0);
@@ -484,156 +512,234 @@ export const FlutterAppRecorder: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Flutter App Simulator */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5" />
-            Microsoft Teams Flutter App Simulator
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-6">
-            {/* Device Frame */}
-            <div className="relative">
-              <div className="w-64 h-96 bg-gray-900 rounded-3xl p-4 shadow-2xl">
-                <div className="w-full h-full bg-white rounded-2xl overflow-hidden relative">
-                  {/* Status Bar */}
-                  <div className="h-6 bg-gray-100 flex items-center justify-between px-4 text-xs">
-                    <span>9:41</span>
-                    <span>100%</span>
-                  </div>
-                  
-                  {/* App Content */}
-                  <div className="p-4 h-full">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-blue-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                        <Users className="w-8 h-8 text-white" />
+      <Tabs defaultValue="simulator" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="simulator" className="flex items-center gap-2">
+            <Monitor className="w-4 h-4" />
+            App Simulator
+          </TabsTrigger>
+          <TabsTrigger value="device" className="flex items-center gap-2">
+            <Smartphone className="w-4 h-4" />
+            Device Connection
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="simulator" className="space-y-6">
+          {/* Flutter App Simulator */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {connectedDevice ? (
+                  <>
+                    <Wifi className="w-5 h-5 text-green-500" />
+                    Connected: {connectedDevice.name}
+                  </>
+                ) : (
+                  <>
+                    <Smartphone className="w-5 h-5" />
+                    Microsoft Teams Flutter App Simulator
+                  </>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-6">
+                {/* Device Frame */}
+                <div className="relative">
+                  <div className="w-64 h-96 bg-gray-900 rounded-3xl p-4 shadow-2xl">
+                    <div className="w-full h-full bg-white rounded-2xl overflow-hidden relative">
+                      {/* Status Bar */}
+                      <div className="h-6 bg-gray-100 flex items-center justify-between px-4 text-xs">
+                        <span>9:41</span>
+                        <div className="flex items-center gap-1">
+                          {connectedDevice && (
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          )}
+                          <span>{connectedDevice?.battery || 100}%</span>
+                        </div>
                       </div>
-                      <h3 className="font-semibold text-gray-800">Microsoft Teams</h3>
-                      <p className="text-sm text-gray-600 mt-2">Flutter Application</p>
                       
-                      {isRecording && (
-                        <div className="mt-4">
-                          <div className="w-3 h-3 bg-red-500 rounded-full mx-auto animate-pulse"></div>
-                          <p className="text-xs text-red-600 mt-1">Recording...</p>
+                      {/* App Content */}
+                      <div className="p-4 h-full">
+                        {isScreenMirroring && connectedDevice ? (
+                          <div className="text-center">
+                            <div className="w-full h-64 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center mb-4">
+                              <div className="text-center">
+                                <Monitor className="w-12 h-12 text-blue-600 mx-auto mb-2" />
+                                <p className="text-sm text-blue-800">Live Screen Mirror</p>
+                                <p className="text-xs text-blue-600">{connectedDevice.name}</p>
+                              </div>
+                            </div>
+                            {isRecording && (
+                              <div className="mt-4">
+                                <div className="w-3 h-3 bg-red-500 rounded-full mx-auto animate-pulse"></div>
+                                <p className="text-xs text-red-600 mt-1">Recording Live Device...</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center">
+                            <div className="w-16 h-16 bg-blue-600 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                              <Users className="w-8 h-8 text-white" />
+                            </div>
+                            <h3 className="font-semibold text-gray-800">Microsoft Teams</h3>
+                            <p className="text-sm text-gray-600 mt-2">Flutter Application</p>
+                            
+                            {!connectedDevice && (
+                              <p className="text-xs text-orange-600 mt-2">
+                                Connect a device to enable live recording
+                              </p>
+                            )}
+                            
+                            {isRecording && (
+                              <div className="mt-4">
+                                <div className="w-3 h-3 bg-red-500 rounded-full mx-auto animate-pulse"></div>
+                                <p className="text-xs text-red-600 mt-1">Recording...</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recording Controls */}
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-center gap-4">
+                    {!isRecording ? (
+                      <div className="text-sm text-gray-600">
+                        {connectedDevice 
+                          ? 'Select a test flow to start recording on your connected device'
+                          : 'Connect a device first, then select a test flow to start recording'
+                        }
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-4">
+                        <Badge variant="destructive" className="animate-pulse">
+                          Recording {testFlows.find(f => f.id === currentFlow)?.name}
+                        </Badge>
+                        <span className="text-lg font-mono">{formatTime(recordingTime)}</span>
+                        <Button onClick={stopRecording} variant="outline" size="sm">
+                          <Square className="w-4 h-4 mr-2" />
+                          Stop
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Device Status */}
+                  {connectedDevice && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span className="text-sm font-medium text-green-800">Device Connected</span>
+                      </div>
+                      <div className="text-xs text-green-700">
+                        {connectedDevice.name} • {connectedDevice.platform} {connectedDevice.version}
+                        {isScreenMirroring && ' • Screen Mirroring Active'}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recent Actions */}
+                  {recentActions.length > 0 && (
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h4 className="font-medium mb-3">Recent Actions</h4>
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {recentActions.slice(0, 5).map((action) => (
+                          <div key={action.id} className="text-sm flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="font-medium">{action.action}</span>
+                            <span className="text-gray-600">{action.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Test Flows */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Microsoft Teams Test Flows</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {testFlows.map((flow) => (
+                  <Card key={flow.id} className="relative">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          {flow.icon}
+                          <h4 className="font-medium">{flow.name}</h4>
+                        </div>
+                        <Badge className={getStatusColor(flow.status)}>
+                          {flow.status}
+                        </Badge>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-4">{flow.description}</p>
+                      
+                      {flow.status === 'completed' && (
+                        <div className="mb-4">
+                          <div className="flex justify-between text-sm mb-1">
+                            <span>Confidence</span>
+                            <span>{flow.confidence}%</span>
+                          </div>
+                          <Progress value={flow.confidence} className="h-2" />
                         </div>
                       )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Recording Controls */}
-            <div className="flex-1 space-y-4">
-              <div className="flex items-center gap-4">
-                {!isRecording ? (
-                  <div className="text-sm text-gray-600">
-                    Select a test flow to start recording
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <Badge variant="destructive" className="animate-pulse">
-                      Recording {testFlows.find(f => f.id === currentFlow)?.name}
-                    </Badge>
-                    <span className="text-lg font-mono">{formatTime(recordingTime)}</span>
-                    <Button onClick={stopRecording} variant="outline" size="sm">
-                      <Square className="w-4 h-4 mr-2" />
-                      Stop
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              {/* Recent Actions */}
-              {recentActions.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium mb-3">Recent Actions</h4>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {recentActions.slice(0, 5).map((action) => (
-                      <div key={action.id} className="text-sm flex items-center gap-2">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <span className="font-medium">{action.action}</span>
-                        <span className="text-gray-600">{action.description}</span>
+                      
+                      <div className="flex gap-2">
+                        {flow.status === 'pending' && (
+                          <Button 
+                            onClick={() => startRecording(flow.id)}
+                            disabled={isRecording || !connectedDevice}
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <Play className="w-4 h-4 mr-2" />
+                            Record
+                          </Button>
+                        )}
+                        
+                        {flow.status === 'completed' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex-1"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Export
+                          </Button>
+                        )}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+                      
+                      {flow.actions.length > 0 && (
+                        <div className="mt-3 text-xs text-gray-500">
+                          {flow.actions.length} actions recorded
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-      {/* Test Flows */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Microsoft Teams Test Flows</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {testFlows.map((flow) => (
-              <Card key={flow.id} className="relative">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      {flow.icon}
-                      <h4 className="font-medium">{flow.name}</h4>
-                    </div>
-                    <Badge className={getStatusColor(flow.status)}>
-                      {flow.status}
-                    </Badge>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-4">{flow.description}</p>
-                  
-                  {flow.status === 'completed' && (
-                    <div className="mb-4">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Confidence</span>
-                        <span>{flow.confidence}%</span>
-                      </div>
-                      <Progress value={flow.confidence} className="h-2" />
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-2">
-                    {flow.status === 'pending' && (
-                      <Button 
-                        onClick={() => startRecording(flow.id)}
-                        disabled={isRecording}
-                        size="sm"
-                        className="flex-1"
-                      >
-                        <Play className="w-4 h-4 mr-2" />
-                        Record
-                      </Button>
-                    )}
-                    
-                    {flow.status === 'completed' && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Export
-                      </Button>
-                    )}
-                  </div>
-                  
-                  {flow.actions.length > 0 && (
-                    <div className="mt-3 text-xs text-gray-500">
-                      {flow.actions.length} actions recorded
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="device">
+          <DeviceConnection 
+            onDeviceConnected={handleDeviceConnected}
+            onScreenMirror={handleScreenMirror}
+            isRecording={isRecording}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
