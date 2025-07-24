@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScriptEditor } from '@/components/ScriptEditor'
 import { PatternAnalysis } from '@/components/PatternAnalysis'
 import { ScriptLibrary } from '@/components/ScriptLibrary'
+import { FlutterAppRecorder } from '@/components/FlutterAppRecorder'
+import { FlutterScriptGenerator } from '@/components/FlutterScriptGenerator'
 import { 
   Play, 
   Square, 
@@ -23,7 +25,11 @@ import {
   Settings,
   Circle,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Users,
+  MessageCircle,
+  Phone,
+  Video
 } from 'lucide-react'
 
 function App() {
@@ -105,13 +111,17 @@ function App() {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-slate-900">AI Appium Generator</h1>
-                <p className="text-sm text-slate-500">Intelligent Test Script Generation</p>
+                <p className="text-sm text-slate-500">Flutter App Testing Platform</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="outline" className="text-green-700 border-green-200">
                 <Zap className="w-3 h-3 mr-1" />
                 AI Powered
+              </Badge>
+              <Badge variant="outline" className="text-blue-700 border-blue-200">
+                <Code className="w-3 h-3 mr-1" />
+                Flutter Ready
               </Badge>
               <Button variant="outline" size="sm">
                 <Settings className="w-4 h-4 mr-2" />
@@ -124,15 +134,19 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="generator" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">
+        <Tabs defaultValue="flutter-recorder" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-[800px]">
+            <TabsTrigger value="flutter-recorder" className="flex items-center space-x-2">
+              <Smartphone className="w-4 h-4" />
+              <span>Flutter Recorder</span>
+            </TabsTrigger>
+            <TabsTrigger value="flutter-scripts" className="flex items-center space-x-2">
+              <Code className="w-4 h-4" />
+              <span>Flutter Scripts</span>
+            </TabsTrigger>
             <TabsTrigger value="generator" className="flex items-center space-x-2">
               <Code className="w-4 h-4" />
               <span>Script Generator</span>
-            </TabsTrigger>
-            <TabsTrigger value="recorder" className="flex items-center space-x-2">
-              <Smartphone className="w-4 h-4" />
-              <span>App Recorder</span>
             </TabsTrigger>
             <TabsTrigger value="analysis" className="flex items-center space-x-2">
               <Brain className="w-4 h-4" />
@@ -143,6 +157,66 @@ function App() {
               <span>Script Library</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Flutter App Recorder Tab */}
+          <TabsContent value="flutter-recorder">
+            <div className="space-y-6">
+              {/* Microsoft Teams Flow Overview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Microsoft Teams Flutter App Testing
+                  </CardTitle>
+                  <CardDescription>
+                    Comprehensive test flow recording for Microsoft Teams including registration, messaging, and calling features
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-blue-900">User Registration</p>
+                      <p className="text-xs text-blue-700">Signup & Profile</p>
+                    </div>
+                    <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                      <MessageCircle className="w-8 h-8 text-green-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-green-900">Send Messages</p>
+                      <p className="text-xs text-green-700">1-to-1 Chat</p>
+                    </div>
+                    <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                      <Users className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-purple-900">Group Messages</p>
+                      <p className="text-xs text-purple-700">Team Chat</p>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+                      <Phone className="w-8 h-8 text-orange-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-orange-900">Voice Call</p>
+                      <p className="text-xs text-orange-700">1-to-1 Audio</p>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+                      <Video className="w-8 h-8 text-red-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-red-900">Video Call</p>
+                      <p className="text-xs text-red-700">1-to-1 Video</p>
+                    </div>
+                    <div className="text-center p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                      <Video className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
+                      <p className="text-sm font-medium text-indigo-900">Group Calls</p>
+                      <p className="text-xs text-indigo-700">Multi-party</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Flutter App Recorder Component */}
+              <FlutterAppRecorder />
+            </div>
+          </TabsContent>
+
+          {/* Flutter Scripts Tab */}
+          <TabsContent value="flutter-scripts">
+            <FlutterScriptGenerator />
+          </TabsContent>
 
           {/* Script Generator Tab */}
           <TabsContent value="generator" className="space-y-6">
@@ -302,72 +376,6 @@ function App() {
                       <div>
                         <p className="font-medium text-purple-900">Element Locators</p>
                         <p className="text-sm text-purple-700">AI-optimized</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* App Recorder Tab */}
-          <TabsContent value="recorder">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Smartphone className="w-5 h-5 text-green-600" />
-                  <span>Advanced App Recorder</span>
-                </CardTitle>
-                <CardDescription>
-                  Professional recording capabilities with device management
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Device Configuration</h4>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">Platform</label>
-                        <Select defaultValue="android">
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="android">Android</SelectItem>
-                            <SelectItem value="ios">iOS</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-slate-700">Device</label>
-                        <Select defaultValue="pixel">
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pixel">Google Pixel 7</SelectItem>
-                            <SelectItem value="samsung">Samsung Galaxy S23</SelectItem>
-                            <SelectItem value="iphone">iPhone 14 Pro</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Recording Options</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Capture Screenshots</span>
-                        <Badge variant="outline">Enabled</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">Record Network Calls</span>
-                        <Badge variant="outline">Enabled</Badge>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm">AI Element Detection</span>
-                        <Badge variant="outline" className="text-green-700 border-green-200">Active</Badge>
                       </div>
                     </div>
                   </div>
